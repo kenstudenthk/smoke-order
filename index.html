@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Order</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#0f0f1a;color:#eee;font-size:13px;min-height:100vh}
+/* ── TABS ── */
+.tab-bar{display:flex;align-items:center;background:#0a0a14;border-bottom:2px solid #1e1e3a;padding:0 12px;gap:4px;overflow-x:auto;min-height:44px}
+.tab-bar::-webkit-scrollbar{height:4px}.tab-bar::-webkit-scrollbar-track{background:#0a0a14}.tab-bar::-webkit-scrollbar-thumb{background:#7c3aed;border-radius:2px}
+.shop-tab{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px 8px 0 0;border:1px solid transparent;cursor:pointer;white-space:nowrap;font-size:12px;color:#888;transition:all .2s;flex-shrink:0}
+.shop-tab.active{background:#16213e;border-color:#7c3aed;border-bottom-color:#16213e;color:#e0b0ff;margin-bottom:-2px}
+.shop-tab:hover:not(.active){background:#1a1a2e;color:#ccc}
+.tab-name-input{background:transparent;border:none;color:inherit;font-size:12px;width:80px;outline:none;cursor:pointer}
+.tab-name-input:focus{border-bottom:1px solid #7c3aed;cursor:text}
+.tab-close{color:#666;font-size:14px;line-height:1;padding:0 2px;background:none;border:none;cursor:pointer;display:flex;align-items:center}
+.tab-close:hover{color:#ef4444}
+.add-tab-btn{padding:6px 12px;background:#7c3aed;border:none;border-radius:6px;color:#fff;cursor:pointer;font-size:18px;line-height:1;flex-shrink:0;margin-left:4px}
+.add-tab-btn:hover{background:#9f5ff5}
+/* ── MAIN ── */
+.main{padding:14px}
+h2{text-align:center;color:#e0b0ff;margin-bottom:12px;font-size:17px}
+/* ── CONTROLS ── */
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;align-items:center}
+.search-bar{flex:1;min-width:160px;padding:7px 12px;border-radius:8px;border:1px solid #333;background:#1e1e2e;color:#eee;font-size:13px}
+.search-bar::placeholder{color:#666}
+.btn{padding:7px 14px;border:none;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.btn-purple{background:#7c3aed;color:#fff}.btn-purple:hover{background:#9f5ff5}
+.btn-green{background:#065f46;color:#6ee7b7}.btn-green:hover{background:#047857}
+.btn-red{background:#7f1d1d;color:#fca5a5}.btn-red:hover{background:#991b1b}
+.btn-blue{background:#1e3a5f;color:#93c5fd}.btn-blue:hover{background:#1d4ed8}
+.btn-amber{background:#78350f;color:#fde68a}.btn-amber:hover{background:#92400e}
+.btn-sm{padding:4px 9px;font-size:11px;border-radius:5px}
+/* ── CATEGORY TABS ── */
+.cat-tabs{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.ctab{padding:4px 11px;border-radius:20px;border:1px solid #333;background:#1e1e2e;color:#aaa;cursor:pointer;font-size:12px;transition:all .2s}
+.ctab.active,.ctab:hover{background:#7c3aed;border-color:#7c3aed;color:#fff}
+/* ── DISCOUNT ── */
+.discount-panel{background:#0f1a2e;border:1px solid #1e3a5f;border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.discount-panel h3{color:#93c5fd;font-size:12px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.discount-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.discount-row label{color:#aaa;font-size:12px;white-space:nowrap}
+.disc-input{width:70px;padding:5px 7px;border-radius:6px;border:1px solid #333;background:#1a1a2e;color:#eee;font-size:12px;text-align:center}
+.rule-select{padding:5px 8px;border-radius:6px;border:1px solid #333;background:#1a1a2e;color:#eee;font-size:12px}
+.disc-preview{margin-top:4px;padding:6px 10px;background:#0a1628;border-radius:6px;color:#fbbf24;font-size:12px;min-height:24px}
+/* ── TABLE ── */
+table{width:100%;border-collapse:collapse;background:#13132b;border-radius:10px;overflow:hidden}
+thead{background:#0f3460}
+th{padding:9px 7px;text-align:left;color:#a78bfa;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+td{padding:7px 7px;border-bottom:1px solid #1a1a30;vertical-align:middle}
+tr:hover td{background:#1a1a30}
+tr.row-selected td{background:#1e1040}
+tr.out-of-stock td{opacity:.4}
+.cat-badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600}
+.cat-濃{background:#7f1d1d;color:#fca5a5}.cat-純{background:#1e3a5f;color:#93c5fd}
+.cat-純幼{background:#1a4731;color:#6ee7b7}.cat-薄荷粗{background:#134e4a;color:#5eead4}
+.cat-薄荷幼{background:#0f4c4c;color:#67e8f9}.cat-中關{background:#3b1f00;color:#fbbf24}
+.qty-ctrl{display:flex;align-items:center;gap:5px}
+.qty-btn{width:22px;height:22px;border:none;border-radius:5px;background:#7c3aed;color:#fff;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center}
+.qty-btn:hover{background:#9f5ff5}
+.qty-input{width:38px;text-align:center;background:#1a1a2e;border:1px solid #333;color:#eee;border-radius:5px;padding:3px 0;font-size:12px}
+.price-cell{color:#fbbf24;font-weight:600}
+.oos-badge{font-size:10px;padding:2px 6px;border-radius:10px;background:#3b0000;color:#f87171;border:1px solid #7f1d1d}
+/* ── SUMMARY ── */
+.summary-bar{margin-top:12px;background:#0f3460;border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.sum-item{text-align:center}.sum-label{font-size:10px;color:#666;margin-bottom:2px}.sum-val{font-size:19px;font-weight:700;color:#e0b0ff}
+.disc-applied{font-size:11px;color:#6ee7b7;margin-top:2px}
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#16213e;border:1px solid #7c3aed;border-radius:12px;padding:20px;width:90%;max-width:500px;max-height:80vh;display:flex;flex-direction:column;gap:12px}
+.modal h3{color:#e0b0ff;font-size:15px}
+.modal-body{overflow-y:auto;flex:1;font-size:13px;line-height:1.8;white-space:pre-wrap;background:#0f0f1a;padding:12px;border-radius:8px;color:#ddd}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end}
+/* ── EDIT PRICE MODAL ── */
+.edit-modal{background:#16213e;border:1px solid #fbbf24;border-radius:12px;padding:20px;width:320px;display:flex;flex-direction:column;gap:12px}
+.edit-modal h3{color:#fbbf24;font-size:14px}
+.edit-input{width:100%;padding:8px 12px;border-radius:7px;border:1px solid #555;background:#0f0f1a;color:#eee;font-size:14px}
+.no-results{text-align:center;color:#555;padding:28px}
+/* copy tab modal */
+.copy-modal{background:#16213e;border:1px solid #7c3aed;border-radius:12px;padding:20px;width:340px;display:flex;flex-direction:column;gap:12px}
+.copy-modal h3{color:#e0b0ff;font-size:14px}
+select.copy-select{width:100%;padding:8px;border-radius:7px;border:1px solid #555;background:#0f0f1a;color:#eee;font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- Tab Bar -->
+<div class="tab-bar" id="tabBar">
+  <button class="add-tab-btn" onclick="addTab()" title="Add new shop tab">＋</button>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+  <h2 id="shopTitle">🛒 Order Table</h2>
+
+  <div class="controls">
+    <input class="search-bar" type="text" id="search" placeholder="🔍 Search product..." oninput="render()">
+    <button class="btn btn-green" onclick="openSummary()">📋 Summary</button>
+    <button class="btn btn-amber" onclick="openCopyModal()">📥 Copy from tab</button>
+    <button class="btn btn-red btn-sm" onclick="clearAll()">Clear</button>
+  </div>
+
+  <div class="cat-tabs" id="catTabs"></div>
+
+  <!-- Discount Panel -->
+  <div class="discount-panel">
+    <h3>🏷️ Discount Rule</h3>
+    <div class="discount-row">
+      <label>Rule:</label>
+      <select class="rule-select" id="discType" onchange="saveDiscount();renderDiscPreview()">
+        <option value="none">No discount</option>
+        <option value="a">A: Buy ≥ X qty → each item -$Y</option>
+        <option value="b">B: Buy ≥ X qty → free items under $Z (qty N)</option>
+      </select>
+    </div>
+    <div class="discount-row" id="discRowA" style="display:none">
+      <label>Buy ≥</label>
+      <input class="disc-input" type="number" id="dA_x" min="1" placeholder="X qty" oninput="saveDiscount();renderDiscPreview()">
+      <label>qty, each -$</label>
+      <input class="disc-input" type="number" id="dA_y" min="0" placeholder="$Y" oninput="saveDiscount();renderDiscPreview()">
+    </div>
+    <div class="discount-row" id="discRowB" style="display:none">
+      <label>Buy ≥</label>
+      <input class="disc-input" type="number" id="dB_x" min="1" placeholder="X qty" oninput="saveDiscount();renderDiscPreview()">
+      <label>qty → free items under $</label>
+      <input class="disc-input" type="number" id="dB_z" min="0" placeholder="$Z" oninput="saveDiscount();renderDiscPreview()">
+      <label>qty</label>
+      <input class="disc-input" type="number" id="dB_n" min="1" placeholder="N" oninput="saveDiscount();renderDiscPreview()">
+    </div>
+    <div class="disc-preview" id="discPreview">No active discount.</div>
+  </div>
+
+  <!-- Table -->
+  <table>
+    <thead>
+      <tr>
+        <th>☑</th><th>Product</th><th>Cat</th><th>Unit Price</th><th>Qty</th><th>Subtotal</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <!-- Summary Bar -->
+  <div class="summary-bar">
+    <div class="sum-item"><div class="sum-label">Selected</div><div class="sum-val" id="sumItems">0</div></div>
+    <div class="sum-item"><div class="sum-label">Total Qty</div><div class="sum-val" id="sumQty">0</div></div>
+    <div class="sum-item">
+      <div class="sum-label">Total Price</div>
+      <div class="sum-val" id="sumPrice">$0</div>
+      <div class="disc-applied" id="discApplied"></div>
+    </div>
+    <button class="btn btn-red btn-sm" onclick="clearAll()">Clear All</button>
+  </div>
+</div>
+
+<!-- Summary Modal -->
+<div class="modal-overlay" id="summaryModal">
+  <div class="modal">
+    <h3>📋 Order Summary</h3>
+    <div class="modal-body" id="summaryBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-purple" onclick="copySummary()">📋 Copy</button>
+      <button class="btn btn-red" onclick="closeModal('summaryModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Price Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="edit-modal">
+    <h3>✏️ Edit Price</h3>
+    <div id="editProductName" style="color:#aaa;font-size:12px;margin-bottom:4px"></div>
+    <input class="edit-input" type="number" id="editPriceInput" min="0" placeholder="New price">
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+      <button class="btn btn-amber" onclick="confirmEditPrice()">Save</button>
+      <button class="btn btn-red" onclick="closeModal('editModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Copy from Tab Modal -->
+<div class="modal-overlay" id="copyModal">
+  <div class="copy-modal">
+    <h3>📥 Copy selections from another tab</h3>
+    <select class="copy-select" id="copyFromSelect"></select>
+    <p style="font-size:11px;color:#888">This will copy checked items and qty from the selected tab into the current tab.</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-purple" onclick="confirmCopy()">Copy</button>
+      <button class="btn btn-red" onclick="closeModal('copyModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── BASE PRODUCTS ──
+const BASE = [
+  {cat:"濃",flag:"🇭🇰",name:"濃AOne紅12號",price:270},
+  {cat:"濃",flag:"🇭🇰",name:"濃曼徹斯特12號",price:280},
+  {cat:"濃",flag:"🇲🇴",name:"紅摩迪12MG",price:290},
+  {cat:"濃",flag:"🇯🇵",name:"日本版原裝中純萬",price:415},
+  {cat:"濃",flag:"🇯🇵",name:"日本版原裝紅萬",price:415},
+  {cat:"濃",flag:"🇯🇵",name:"日本版7仔原裝紅萬",price:470},
+  {cat:"純",flag:"🇭🇰",name:"純AOne藍8號",price:270},
+  {cat:"純",flag:"🇭🇰",name:"極純奧沙銀HO 4mg",price:270},
+  {cat:"純",flag:"🇰🇷",name:"純白迪8 mg",price:290},
+  {cat:"純",flag:"🇲🇴",name:"藍摩迪4MG",price:290},
+  {cat:"純",flag:"🇭🇰",name:"極純曼徹斯特2號",price:280},
+  {cat:"純",flag:"🇭🇰",name:"純曼徹斯特8號",price:280},
+  {cat:"純",flag:"🇯🇵",name:"日本版原裝白萬",price:415},
+  {cat:"純",flag:"🇯🇵",name:"日本版7仔原裝白萬",price:470},
+  {cat:"純",flag:"🇯🇵",name:"日本版原裝萬事發原味1/3/6/8/10號",price:410},
+  {cat:"純",flag:"🇯🇵",name:"日本版7仔E系原裝萬事發原味1/6號",price:420},
+  {cat:"純",flag:"🇯🇵",name:"日本版7仔原裝七星7號",price:460},
+  {cat:"純",flag:"🇯🇵",name:"日本版7仔原裝黑魔鬼摩卡香草/朱古力",price:460},
+  {cat:"純幼",flag:"🇰🇷",name:"韓國機場純藍ESSE",price:275},
+  {cat:"薄荷粗",flag:"🇭🇰",name:"奧沙C4HO 6mg",price:290},
+  {cat:"薄荷粗",flag:"🇭🇰",name:"奧沙C6HO 6mg",price:290},
+  {cat:"薄荷粗",flag:"🇭🇰",name:"奧沙雙珠藍莓HO 8mg",price:295},
+  {cat:"薄荷粗",flag:"🇭🇰",name:"奧沙雙珠蜜瓜HO 8mg",price:295},
+  {cat:"薄荷粗",flag:"🇰🇷",name:"雙珠冰極迪寶路 2mg",price:305},
+  {cat:"薄荷粗",flag:"🇰🇷",name:"雙珠蜜瓜迪寶路 5mg",price:305},
+  {cat:"薄荷粗",flag:"🇰🇷",name:"雙珠蜜瓜迪寶路 8mg",price:305},
+  {cat:"薄荷粗",flag:"🇰🇷",name:"雙珠藍莓迪寶路 5mg",price:305},
+  {cat:"薄荷粗",flag:"🇰🇷",name:"雙珠藍莓迪寶路 8mg",price:305},
+  {cat:"薄荷粗",flag:"🇲🇴",name:"雙珠冰川摩迪5MG",price:305},
+  {cat:"薄荷粗",flag:"🇲🇴",name:"雙珠蜜瓜摩迪5MG",price:305},
+  {cat:"薄荷粗",flag:"🇲🇴",name:"雙珠藍莓摩迪5MG",price:305},
+  {cat:"薄荷粗",flag:"🇲🇴",name:"雙珠藍莓摩迪8MG",price:305},
+  {cat:"薄荷粗",flag:"🇯🇵",name:"日本版原裝黑冰5/8號",price:415},
+  {cat:"薄荷粗",flag:"🇯🇵",name:"日本版原裝純薄荷萬4/8號",price:415},
+  {cat:"薄荷粗",flag:"🇯🇵",name:"日本版原裝黑萬",price:415},
+  {cat:"薄荷粗",flag:"🇯🇵",name:"日本版原裝雙珠草莓萬",price:415},
+  {cat:"薄荷粗",flag:"🇯🇵",name:"日本版原裝熱情果萬",price:415},
+  {cat:"薄荷粗",flag:"🇯🇵",name:"日本版原裝檸檬dry萬",price:415},
+  {cat:"薄荷粗",flag:"🇯🇵",name:"日本版7仔原裝雙珠薄荷萬",price:470},
+  {cat:"薄荷粗",flag:"🇯🇵",name:"日本版7仔原裝純薄荷萬4/8號",price:470},
+  {cat:"薄荷粗",flag:"🇭🇰",name:"香港機場萬事發赤玉1",price:490},
+  {cat:"薄荷粗",flag:"🇯🇵",name:"日本版原裝萬事發赤玉5/8號",price:410},
+  {cat:"薄荷粗",flag:"🇯🇵",name:"日本版原裝萬事發藍莓5/8號",price:410},
+  {cat:"薄荷粗",flag:"🇯🇵",name:"日本版原裝萬事發藍莓8號",price:410},
+  {cat:"薄荷粗",flag:"🇯🇵",name:"日本版7仔原裝萬事發藍莓1/5/8號",price:460},
+  {cat:"薄荷粗",flag:"🇯🇵",name:"日本版7仔原裝萬事發檸檬1號",price:460},
+  {cat:"薄荷粗",flag:"🇯🇵",name:"日本版7仔原裝BJ青檸8/芒果5",price:420},
+  {cat:"薄荷粗",flag:"🇯🇵",name:"日本版7仔原裝BJ隨機5",price:460},
+  {cat:"薄荷幼",flag:"🇰🇷",name:"幼雙珠士多啤梨寒冰",price:335},
+  {cat:"薄荷幼",flag:"🇰🇷",name:"韓國機場雙珠橙ESSE",price:285},
+  {cat:"薄荷幼",flag:"🇰🇷",name:"韓國機場雙珠提子ESSE",price:285},
+  {cat:"薄荷幼",flag:"🇰🇷",name:"黑冰迪寶路1號(幼)",price:290},
+  {cat:"薄荷幼",flag:"🇰🇷",name:"黑冰迪寶路5號(幼)",price:290},
+  {cat:"薄荷幼",flag:"🇰🇷",name:"冰極迪寶路1號(幼)",price:290},
+  {cat:"薄荷幼",flag:"🇰🇷",name:"雙珠蜜瓜迪寶路5號(幼)",price:305},
+  {cat:"薄荷幼",flag:"🇰🇷",name:"雙珠藍莓迪寶路1號(幼)",price:305},
+  {cat:"薄荷幼",flag:"🇰🇷",name:"雙珠藍莓迪寶路5號(幼)",price:305},
+  {cat:"薄荷幼",flag:"🇰🇷",name:"雙珠紅酒迪寶路1號(幼)",price:305},
+  {cat:"薄荷幼",flag:"🇰🇷",name:"雙珠紅酒迪寶路5號(幼)",price:305},
+  {cat:"薄荷幼",flag:"🇰🇷",name:"(幼)MAC薄荷爆珠",price:245},
+  {cat:"薄荷幼",flag:"🇭🇰",name:"幼香港機場健牌赤冰薄1",price:490},
+  {cat:"薄荷幼",flag:"🇯🇵",name:"幼日本版原裝健牌冰薄1/金薄1",price:410},
+  {cat:"薄荷幼",flag:"🇯🇵",name:"幼日本版7仔原裝健牌冰薄5/紫薄1/金薄1",price:420},
+  {cat:"薄荷幼",flag:"🇯🇵",name:"幼日本版原裝E系藍莓1",price:420},
+  {cat:"中關",flag:"🇨🇳",name:"中南海藍裝8號",price:230},
+  {cat:"中關",flag:"🇨🇳",name:"中南海金裝8號",price:240},
+  {cat:"中關",flag:"🇨🇳",name:"硬南洋",price:230},
+  {cat:"中關",flag:"🇨🇳",name:"軟南洋",price:220},
+  {cat:"中關",flag:"🇨🇳",name:"硬經典",price:250},
+  {cat:"中關",flag:"🇨🇳",name:"軟經典",price:250},
+  {cat:"中關",flag:"🇨🇳",name:"硬廣喜",price:255},
+  {cat:"中關",flag:"🇨🇳",name:"1906經典",price:245},
+  {cat:"中關",flag:"🇨🇳",name:"百年龍鳳",price:260},
+  {cat:"中關",flag:"🇨🇳",name:"金芙蓉(湖南版)",price:255},
+  {cat:"中關",flag:"🇨🇳",name:"粗荷花",price:275},
+  {cat:"中關",flag:"🇨🇳",name:"軟黃鶴樓",price:250},
+  {cat:"中關",flag:"🇨🇳",name:"軟紅牡丹",price:250},
+  {cat:"中關",flag:"🇨🇳",name:"白紅塔山",price:250},
+  {cat:"中關",flag:"🇨🇳",name:"硬中華",price:280},
+  {cat:"中關",flag:"🇨🇳",name:"軟中華",price:285},
+  {cat:"中關",flag:"🇨🇳",name:"幼南京藍(炫赫門)",price:240},
+  {cat:"中關",flag:"🇨🇳",name:"幼南京金(十二金釵)",price:240},
+  {cat:"中關",flag:"🇨🇳",name:"幼南京黃(雨花石)",price:240},
+  {cat:"中關",flag:"🇨🇳",name:"陳皮貴煙",price:240},
+];
+
+const CATS = ["All",...new Set(BASE.map(p=>p.cat))];
+const LS_KEY = "orderTabs_v3";
+
+// ── STATE ──
+let tabs = [];
+let activeTabId = null;
+let activeCat = "All";
+let editingIndex = null;
+
+function freshItems(){
+  return BASE.map(p=>({...p, checked:false, qty:1, oos:false}));
+}
+
+function newTab(name="Shop"){
+  return {
+    id: Date.now()+"_"+Math.random().toString(36).slice(2),
+    name,
+    items: freshItems(),
+    discount:{type:"none", aX:"", aY:"", bX:"", bZ:"", bN:""}
+  };
+}
+
+// ── PERSISTENCE ──
+function save(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify({tabs, activeTabId})); }catch(e){}
+}
+function load(){
+  try{
+    const d = JSON.parse(localStorage.getItem(LS_KEY)||"null");
+    if(d && d.tabs && d.tabs.length){
+      tabs = d.tabs;
+      // migrate: ensure all items exist
+      tabs.forEach(t=>{
+        const existing = new Map(t.items.map(i=>[i.name,i]));
+        t.items = BASE.map(b=>{
+          const ex = existing.get(b.name);
+          return ex ? {...b, checked:ex.checked, qty:ex.qty, oos:ex.oos, price:ex.price} : {...b, checked:false, qty:1, oos:false};
+        });
+        if(!t.discount) t.discount={type:"none",aX:"",aY:"",bX:"",bZ:"",bN:""};
+      });
+      activeTabId = d.activeTabId && tabs.find(t=>t.id===d.activeTabId) ? d.activeTabId : tabs[0].id;
+      return;
+    }
+  }catch(e){}
+  const t = newTab("Shop 1");
+  tabs = [t];
+  activeTabId = t.id;
+}
+
+function getTab(id){ return tabs.find(t=>t.id===(id||activeTabId)); }
+function curTab(){ return getTab(activeTabId); }
+
+// ── TAB BAR ──
+function renderTabBar(){
+  const bar = document.getElementById("tabBar");
+  bar.innerHTML = tabs.map(t=>`
+    <div class="shop-tab ${t.id===activeTabId?'active':''}" onclick="switchTab('${t.id}')">
+      <input class="tab-name-input" value="${esc(t.name)}" onclick="event.stopPropagation()"
+        onchange="renameTab('${t.id}',this.value)" onblur="renameTab('${t.id}',this.value)" title="Click to rename">
+      <button class="tab-close" onclick="event.stopPropagation();removeTab('${t.id}')" title="Remove tab">✕</button>
+    </div>
+  `).join("")+`<button class="add-tab-btn" onclick="addTab()" title="Add new shop tab">＋</button>`;
+}
+
+function switchTab(id){
+  activeTabId = id;
+  activeCat = "All";
+  loadDiscountUI();
+  renderTabBar();
+  renderCatTabs();
+  render();
+  save();
+}
+
+function addTab(){
+  const t = newTab("Shop "+(tabs.length+1));
+  tabs.push(t);
+  switchTab(t.id);
+}
+
+function removeTab(id){
+  if(tabs.length===1){alert("Cannot remove the only tab.");return;}
+  tabs = tabs.filter(t=>t.id!==id);
+  if(activeTabId===id) activeTabId=tabs[0].id;
+  switchTab(activeTabId);
+}
+
+function renameTab(id, name){
+  const t = getTab(id);
+  if(t){ t.name=name.trim()||"Shop"; save(); renderTabBar(); }
+}
+
+// ── CAT TABS ──
+function renderCatTabs(){
+  document.getElementById("catTabs").innerHTML=CATS.map(c=>
+    `<div class="ctab ${c===activeCat?'active':''}" onclick="setCat('${c}')">${c}</div>`
+  ).join("");
+}
+function setCat(c){ activeCat=c; renderCatTabs(); render(); }
+
+// ── DISCOUNT ──
+function loadDiscountUI(){
+  const d = curTab().discount;
+  document.getElementById("discType").value = d.type||"none";
+  document.getElementById("dA_x").value = d.aX||"";
+  document.getElementById("dA_y").value = d.aY||"";
+  document.getElementById("dB_x").value = d.bX||"";
+  document.getElementById("dB_z").value = d.bZ||"";
+  document.getElementById("dB_n").value = d.bN||"";
+  toggleDiscRows(d.type);
+  renderDiscPreview();
+}
+
+function toggleDiscRows(type){
+  document.getElementById("discRowA").style.display = type==="a"?"flex":"none";
+  document.getElementById("discRowB").style.display = type==="b"?"flex":"none";
+}
+
+function saveDiscount(){
+  const type = document.getElementById("discType").value;
+  toggleDiscRows(type);
+  curTab().discount = {
+    type, aX:document.getElementById("dA_x").value, aY:document.getElementById("dA_y").value,
+    bX:document.getElementById("dB_x").value, bZ:document.getElementById("dB_z").value, bN:document.getElementById("dB_n").value
+  };
+  save(); render();
+}
+
+function calcDiscount(tab){
+  const d = tab.discount;
+  const items = tab.items.filter(i=>i.checked && !i.oos);
+  const totalQty = items.reduce((a,i)=>a+i.qty,0);
+  let discountAmt = 0;
+  let note = "";
+  if(d.type==="a"){
+    const x=parseInt(d.aX), y=parseInt(d.aY);
+    if(x>0 && y>0 && totalQty>=x){
+      discountAmt = totalQty * y;
+      note = `Rule A applied: ${totalQty} qty × -$${y} = -$${discountAmt}`;
+    }
+  } else if(d.type==="b"){
+    const x=parseInt(d.bX), z=parseInt(d.bZ), n=parseInt(d.bN);
+    if(x>0 && z>0 && n>0 && totalQty>=x){
+      const freeItems = items.filter(i=>i.price<z).sort((a,b)=>b.price-a.price).slice(0,n);
+      discountAmt = freeItems.reduce((a,i)=>a+i.price*Math.min(i.qty,1),0);
+      note = `Rule B applied: ${freeItems.length} free item(s) under $${z} → -$${discountAmt}`;
+    }
+  }
+  return {discountAmt, note};
+}
+
+function renderDiscPreview(){
+  const d = curTab().discount;
+  const el = document.getElementById("discPreview");
+  if(d.type==="none"){el.textContent="No active discount.";return;}
+  const {note} = calcDiscount(curTab());
+  el.textContent = note || (d.type==="a"
+    ? `Rule A: Buy ≥ ${d.aX||"?"} qty → each item -$${d.aY||"?"}`
+    : `Rule B: Buy ≥ ${d.bX||"?"} qty → free ${d.bN||"?"} item(s) under $${d.bZ||"?"}`);
+}
+
+// ── RENDER TABLE ──
+function render(){
+  const tab = curTab();
+  const q = document.getElementById("search").value.toLowerCase();
+  const filtered = tab.items.map((p,i)=>({...p,i})).filter(p=>
+    (activeCat==="All"||p.cat===activeCat) &&
+    (p.name.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q)||p.flag.includes(q))
+  );
+  const tbody = document.getElementById("tbody");
+  if(!filtered.length){
+    tbody.innerHTML=`<tr><td colspan="7" class="no-results">No results found</td></tr>`;
+    updateSummary(); return;
+  }
+  const {discountAmt} = calcDiscount(tab);
+  const totalQty = tab.items.filter(i=>i.checked&&!i.oos).reduce((a,i)=>a+i.qty,0);
+  tbody.innerHTML = filtered.map(p=>{
+    const unitDisc = tab.discount.type==="a" && parseInt(tab.discount.aX)>0 && totalQty>=parseInt(tab.discount.aX)
+      ? parseInt(tab.discount.aY)||0 : 0;
+    const effectivePrice = Math.max(0,(p.price||0)-unitDisc);
+    const sub = p.checked && !p.oos ? p.qty*effectivePrice : 0;
+    return `<tr class="${p.checked&&!p.oos?'row-selected':''} ${p.oos?'out-of-stock':''}">
+      <td><input type="checkbox" ${p.checked?'checked':''} ${p.oos?'disabled':''} onchange="toggle(${p.i},this.checked)"></td>
+      <td>${p.flag} ${p.name} ${p.oos?'<span class="oos-badge">Out of Stock</span>':''}</td>
+      <td><span class="cat-badge cat-${p.cat}">${p.cat}</span></td>
+      <td class="price-cell">
+        ${unitDisc>0&&p.checked?`<span style="text-decoration:line-through;color:#666;font-size:11px">$${p.price}</span> `:``}
+        $${effectivePrice}
+      </td>
+      <td>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty(${p.i},-1)" ${p.oos?'disabled':''}>−</button>
+          <input class="qty-input" type="number" min="1" value="${p.qty}" onchange="setQty(${p.i},this.value)" ${p.oos?'disabled':''}>
+          <button class="qty-btn" onclick="changeQty(${p.i},1)" ${p.oos?'disabled':''}>+</button>
+        </div>
+      </td>
+      <td style="color:#a78bfa;font-weight:600">${p.checked&&!p.oos?'$'+sub:'—'}</td>
+      <td>
+        <button class="btn btn-amber btn-sm" onclick="openEditPrice(${p.i})" style="margin-bottom:3px">✏️</button>
+        <button class="btn ${p.oos?'btn-green':'btn-red'} btn-sm" onclick="toggleOos(${p.i})">${p.oos?'✅ In':'🚫 OOS'}</button>
+      </td>
+    </tr>`;
+  }).join("");
+  updateSummary();
+}
+
+function updateSummary(){
+  const tab = curTab();
+  const sel = tab.items.filter(i=>i.checked&&!i.oos);
+  const totalQty = sel.reduce((a,i)=>a+i.qty,0);
+  const d = tab.discount;
+  const unitDisc = d.type==="a" && parseInt(d.aX)>0 && totalQty>=parseInt(d.aX) ? parseInt(d.aY)||0 : 0;
+  const rawTotal = sel.reduce((a,i)=>a+i.qty*(Math.max(0,i.price-unitDisc)),0);
+  const {discountAmt, note} = calcDiscount(tab);
+  const finalTotal = d.type==="b" ? Math.max(0,rawTotal-discountAmt) : rawTotal;
+  document.getElementById("sumItems").textContent = sel.length;
+  document.getElementById("sumQty").textContent = totalQty;
+  document.getElementById("sumPrice").textContent = "$"+finalTotal;
+  document.getElementById("discApplied").textContent = note;
+  renderDiscPreview();
+}
+
+// ── ACTIONS ──
+function toggle(i,v){ curTab().items[i].checked=v; save(); render(); }
+function changeQty(i,d){ const t=curTab(); t.items[i].qty=Math.max(1,t.items[i].qty+d); save(); render(); }
+function setQty(i,v){ curTab().items[i].qty=Math.max(1,parseInt(v)||1); save(); render(); }
+function toggleOos(i){ const t=curTab(); t.items[i].oos=!t.items[i].oos; if(t.items[i].oos)t.items[i].checked=false; save(); render(); }
+function clearAll(){ curTab().items.forEach(i=>{i.checked=false;i.qty=1;}); save(); render(); }
+
+// ── EDIT PRICE ──
+function openEditPrice(i){
+  editingIndex = i;
+  const p = curTab().items[i];
+  document.getElementById("editProductName").textContent = p.flag+" "+p.name;
+  document.getElementById("editPriceInput").value = p.price;
+  document.getElementById("editModal").classList.add("open");
+  setTimeout(()=>document.getElementById("editPriceInput").focus(),50);
+}
+function confirmEditPrice(){
+  const v = parseInt(document.getElementById("editPriceInput").value);
+  if(isNaN(v)||v<0){alert("Invalid price");return;}
+  curTab().items[editingIndex].price = v;
+  save(); render();
+  closeModal("editModal");
+}
+
+// ── SUMMARY MODAL ──
+function openSummary(){
+  const tab = curTab();
+  const sel = tab.items.filter(i=>i.checked&&!i.oos);
+  if(!sel.length){alert("No items selected.");return;}
+  const d = tab.discount;
+  const totalQty = sel.reduce((a,i)=>a+i.qty,0);
+  const unitDisc = d.type==="a" && parseInt(d.aX)>0 && totalQty>=parseInt(d.aX) ? parseInt(d.aY)||0 : 0;
+  const {discountAmt, note} = calcDiscount(tab);
+  const rawTotal = sel.reduce((a,i)=>a+i.qty*(Math.max(0,i.price-unitDisc)),0);
+  const finalTotal = d.type==="b" ? Math.max(0,rawTotal-discountAmt) : rawTotal;
+
+  let lines = [`📋 ${tab.name} — Order Summary`, "─".repeat(32)];
+  sel.forEach(i=>{
+    const ep = Math.max(0,i.price-unitDisc);
+    lines.push(`${i.flag} ${i.name}`);
+    lines.push(`   Qty: ${i.qty}  ×  $${ep}  =  $${i.qty*ep}${unitDisc>0?` (原$${i.price}-$${unitDisc})`:"" }`);
+  });
+  lines.push("─".repeat(32));
+  lines.push(`Total Items: ${sel.length}`);
+  lines.push(`Total Qty:   ${totalQty}`);
+  if(note) lines.push(`Discount:    ${note}`);
+  lines.push(`Total Price: $${finalTotal}`);
+
+  document.getElementById("summaryBody").textContent = lines.join("\n");
+  document.getElementById("summaryModal").classList.add("open");
+}
+function copySummary(){
+  const txt = document.getElementById("summaryBody").textContent;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const btn = document.querySelector("#summaryModal .btn-purple");
+    btn.textContent="✅ Copied!"; setTimeout(()=>btn.textContent="📋 Copy",2000);
+  });
+}
+
+// ── COPY FROM TAB MODAL ──
+function openCopyModal(){
+  const others = tabs.filter(t=>t.id!==activeTabId);
+  if(!others.length){alert("No other tabs to copy from.");return;}
+  const sel = document.getElementById("copyFromSelect");
+  sel.innerHTML = others.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join("");
+  document.getElementById("copyModal").classList.add("open");
+}
+function confirmCopy(){
+  const fromId = document.getElementById("copyFromSelect").value;
+  const from = getTab(fromId);
+  const to = curTab();
+  to.items.forEach((item,i)=>{
+    item.checked = from.items[i]?.checked||false;
+    item.qty = from.items[i]?.qty||1;
+  });
+  save(); render();
+  closeModal("copyModal");
+}
+
+function closeModal(id){ document.getElementById(id).classList.remove("open"); }
+
+// ── UTILS ──
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
+
+// ── INIT ──
+load();
+renderTabBar();
+renderCatTabs();
+loadDiscountUI();
+render();
+
+// close modals on overlay click
+["summaryModal","editModal","copyModal"].forEach(id=>{
+  document.getElementById(id).addEventListener("click",function(e){
+    if(e.target===this) closeModal(id);
+  });
+});
+</script>
+</body>
+</html>
