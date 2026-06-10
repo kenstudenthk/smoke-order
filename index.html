@@ -83,6 +83,29 @@ tr.out-of-stock td{opacity:.4}
 .copy-modal{background:#16213e;border:1px solid #7c3aed;border-radius:12px;padding:20px;width:340px;display:flex;flex-direction:column;gap:12px}
 .copy-modal h3{color:#e0b0ff;font-size:14px}
 select.copy-select{width:100%;padding:8px;border-radius:7px;border:1px solid #555;background:#0f0f1a;color:#eee;font-size:13px}
+/* ── CHECKBOX ── */
+input[type="checkbox"]{width:20px;height:20px;cursor:pointer;accent-color:#7c3aed}
+/* ── MOBILE ── */
+@media (max-width:600px){
+  .main{padding:8px}
+  h2{font-size:15px}
+  .controls{gap:6px}
+  .btn{padding:8px 10px;font-size:12px}
+  table,thead,tbody,tr{display:block}
+  thead{display:none}
+  tr{margin-bottom:10px;background:#13132b;border-radius:10px;border:1px solid #1e1e3a;padding:6px}
+  tr.row-selected{border-color:#7c3aed}
+  td{display:flex;justify-content:space-between;align-items:center;border-bottom:none;padding:6px 8px;text-align:right}
+  td::before{content:attr(data-label);color:#888;font-size:11px;text-transform:uppercase;letter-spacing:.4px;text-align:left;margin-right:8px}
+  td:first-child::before{content:""}
+  td:first-child{justify-content:flex-start}
+  input[type="checkbox"]{width:24px;height:24px}
+  .qty-ctrl{justify-content:flex-end}
+  .summary-bar{flex-direction:column;align-items:stretch;text-align:center}
+  .discount-row{flex-direction:column;align-items:stretch}
+  .discount-row label{white-space:normal}
+  .disc-input,.rule-select{width:100%}
+}
 </style>
 </head>
 <body>
@@ -98,7 +121,7 @@ select.copy-select{width:100%;padding:8px;border-radius:7px;border:1px solid #55
 
   <div class="controls">
     <input class="search-bar" type="text" id="search" placeholder="🔍 Search product..." oninput="render()">
-    <button class="btn btn-green" onclick="openSummary()">📋 Summary</button>
+    <button class="btn btn-green" onclick="openSummary()">📋 摘要</button>
     <button class="btn btn-amber" onclick="openCopyModal()">📥 Copy from tab</button>
     <button class="btn btn-red btn-sm" onclick="clearAll()">Clear</button>
   </div>
@@ -107,30 +130,30 @@ select.copy-select{width:100%;padding:8px;border-radius:7px;border:1px solid #55
 
   <!-- Discount Panel -->
   <div class="discount-panel">
-    <h3>🏷️ Discount Rule</h3>
+    <h3>🏷️ 折扣規則</h3>
     <div class="discount-row">
-      <label>Rule:</label>
+      <label>規則：</label>
       <select class="rule-select" id="discType" onchange="saveDiscount();renderDiscPreview()">
-        <option value="none">No discount</option>
-        <option value="a">A: Buy ≥ X qty → each item -$Y</option>
-        <option value="b">B: Buy ≥ X qty → free items under $Z (qty N)</option>
+        <option value="none">無折扣</option>
+        <option value="a">A：購買 ≥ X 件 → 每件 -$Y</option>
+        <option value="b">B：購買 ≥ X 件 → 免費贈送 $Z 以下貨品 (N 件)</option>
       </select>
     </div>
     <div class="discount-row" id="discRowA" style="display:none">
-      <label>Buy ≥</label>
-      <input class="disc-input" type="number" id="dA_x" min="1" placeholder="X qty" oninput="saveDiscount();renderDiscPreview()">
-      <label>qty, each -$</label>
+      <label>購買 ≥</label>
+      <input class="disc-input" type="number" id="dA_x" min="1" placeholder="X 件" oninput="saveDiscount();renderDiscPreview()">
+      <label>件，每件 -$</label>
       <input class="disc-input" type="number" id="dA_y" min="0" placeholder="$Y" oninput="saveDiscount();renderDiscPreview()">
     </div>
     <div class="discount-row" id="discRowB" style="display:none">
-      <label>Buy ≥</label>
-      <input class="disc-input" type="number" id="dB_x" min="1" placeholder="X qty" oninput="saveDiscount();renderDiscPreview()">
-      <label>qty → free items under $</label>
+      <label>購買 ≥</label>
+      <input class="disc-input" type="number" id="dB_x" min="1" placeholder="X 件" oninput="saveDiscount();renderDiscPreview()">
+      <label>件 → 免費贈送 $</label>
       <input class="disc-input" type="number" id="dB_z" min="0" placeholder="$Z" oninput="saveDiscount();renderDiscPreview()">
-      <label>qty</label>
+      <label>以下貨品，數量</label>
       <input class="disc-input" type="number" id="dB_n" min="1" placeholder="N" oninput="saveDiscount();renderDiscPreview()">
     </div>
-    <div class="disc-preview" id="discPreview">No active discount.</div>
+    <div class="disc-preview" id="discPreview">無啟用折扣。</div>
   </div>
 
   <!-- Table -->
@@ -421,14 +444,14 @@ function calcDiscount(tab){
     const x=parseInt(d.aX), y=parseInt(d.aY);
     if(x>0 && y>0 && totalQty>=x){
       discountAmt = totalQty * y;
-      note = `Rule A applied: ${totalQty} qty × -$${y} = -$${discountAmt}`;
+      note = `已套用規則A：${totalQty} 件 × -$${y} = -$${discountAmt}`;
     }
   } else if(d.type==="b"){
     const x=parseInt(d.bX), z=parseInt(d.bZ), n=parseInt(d.bN);
     if(x>0 && z>0 && n>0 && totalQty>=x){
       const freeItems = items.filter(i=>i.price<z).sort((a,b)=>b.price-a.price).slice(0,n);
       discountAmt = freeItems.reduce((a,i)=>a+i.price*Math.min(i.qty,1),0);
-      note = `Rule B applied: ${freeItems.length} free item(s) under $${z} → -$${discountAmt}`;
+      note = `已套用規則B：${freeItems.length} 件 $${z} 以下貨品免費 → -$${discountAmt}`;
     }
   }
   return {discountAmt, note};
@@ -437,11 +460,11 @@ function calcDiscount(tab){
 function renderDiscPreview(){
   const d = curTab().discount;
   const el = document.getElementById("discPreview");
-  if(d.type==="none"){el.textContent="No active discount.";return;}
+  if(d.type==="none"){el.textContent="無啟用折扣。";return;}
   const {note} = calcDiscount(curTab());
   el.textContent = note || (d.type==="a"
-    ? `Rule A: Buy ≥ ${d.aX||"?"} qty → each item -$${d.aY||"?"}`
-    : `Rule B: Buy ≥ ${d.bX||"?"} qty → free ${d.bN||"?"} item(s) under $${d.bZ||"?"}`);
+    ? `規則A：購買 ≥ ${d.aX||"?"} 件 → 每件 -$${d.aY||"?"}`
+    : `規則B：購買 ≥ ${d.bX||"?"} 件 → 免費贈送 ${d.bN||"?"} 件 $${d.bZ||"?"} 以下貨品`);
 }
 
 // ── RENDER TABLE ──
@@ -465,24 +488,24 @@ function render(){
     const effectivePrice = Math.max(0,(p.price||0)-unitDisc);
     const sub = p.checked && !p.oos ? p.qty*effectivePrice : 0;
     return `<tr class="${p.checked&&!p.oos?'row-selected':''} ${p.oos?'out-of-stock':''}">
-      <td><input type="checkbox" ${p.checked?'checked':''} ${p.oos?'disabled':''} onchange="toggle(${p.i},this.checked)"></td>
-      <td>${p.flag} ${p.name} ${p.oos?'<span class="oos-badge">Out of Stock</span>':''}</td>
-      <td><span class="cat-badge cat-${p.cat}">${p.cat}</span></td>
-      <td class="price-cell">
+      <td data-label=""><input type="checkbox" ${p.checked?'checked':''} ${p.oos?'disabled':''} onchange="toggle(${p.i},this.checked)"></td>
+      <td data-label="Product">${p.flag} ${p.name} ${p.oos?'<span class="oos-badge">無貨</span>':''}</td>
+      <td data-label="Cat"><span class="cat-badge cat-${p.cat}">${p.cat}</span></td>
+      <td class="price-cell" data-label="Unit Price">
         ${unitDisc>0&&p.checked?`<span style="text-decoration:line-through;color:#666;font-size:11px">$${p.price}</span> `:``}
         $${effectivePrice}
       </td>
-      <td>
+      <td data-label="Qty">
         <div class="qty-ctrl">
           <button class="qty-btn" onclick="changeQty(${p.i},-1)" ${p.oos?'disabled':''}>−</button>
           <input class="qty-input" type="number" min="1" value="${p.qty}" onchange="setQty(${p.i},this.value)" ${p.oos?'disabled':''}>
           <button class="qty-btn" onclick="changeQty(${p.i},1)" ${p.oos?'disabled':''}>+</button>
         </div>
       </td>
-      <td style="color:#a78bfa;font-weight:600">${p.checked&&!p.oos?'$'+sub:'—'}</td>
-      <td>
+      <td data-label="Subtotal" style="color:#a78bfa;font-weight:600">${p.checked&&!p.oos?'$'+sub:'—'}</td>
+      <td data-label="Actions">
         <button class="btn btn-amber btn-sm" onclick="openEditPrice(${p.i})" style="margin-bottom:3px">✏️</button>
-        <button class="btn ${p.oos?'btn-green':'btn-red'} btn-sm" onclick="toggleOos(${p.i})">${p.oos?'✅ In':'🚫 OOS'}</button>
+        <button class="btn ${p.oos?'btn-green':'btn-red'} btn-sm" onclick="toggleOos(${p.i})">${p.oos?'✅ 有貨':'🚫 無貨'}</button>
       </td>
     </tr>`;
   }).join("");
@@ -557,7 +580,9 @@ function openSummary(){
   document.getElementById("summaryModal").classList.add("open");
 }
 function copySummary(){
-  const txt = document.getElementById("summaryBody").textContent;
+  const tab = curTab();
+  const sel = tab.items.filter(i=>i.checked&&!i.oos);
+  const txt = sel.map(i=>`${i.name} -- ${i.qty}條`).join("\n");
   navigator.clipboard.writeText(txt).then(()=>{
     const btn = document.querySelector("#summaryModal .btn-purple");
     btn.textContent="✅ Copied!"; setTimeout(()=>btn.textContent="📋 Copy",2000);
