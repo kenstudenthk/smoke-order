@@ -2,6 +2,8 @@
 .wrangler
 .claude
 .remember
+.github
+node_modules
 wrangler.jsonc
 .assetsignore
 *.stackdump
