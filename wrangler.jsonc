@@ -1,0 +1,13 @@
+{
+  "name": "smoke-order",
+  "compatibility_date": "2026-06-10",
+  "assets": {
+    "directory": "."
+  },
+  "routes": [
+    {
+      "pattern": "smoke.kkhome.uk",
+      "custom_domain": true
+    }
+  ]
+}

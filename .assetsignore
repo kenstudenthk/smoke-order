@@ -1,0 +1,7 @@
+.git
+.wrangler
+.claude
+.remember
+wrangler.jsonc
+.assetsignore
+*.stackdump
