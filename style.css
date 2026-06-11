@@ -1,22 +1,25 @@
 /* ════════════════════════════════════════════
-   🎮 NINTENDO.COM (2001) — CONSOLE CHROME EDITION
-   Brushed-periwinkle chrome · carbon command slabs · signal-orange "go"
+   🏙️ LEAGUE OF DEFENSE — BRIGHT PIXEL SKYLINE EDITION
+   Sky-blue gradient · pixel clouds & city skyline · grass-green "go"
    ════════════════════════════════════════════ */
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Press+Start+2P&family=VT323&display=swap');
 
 :root{
-  --primary:#e60012; --signal:#f68d1f; --amber:#ecab37; --nav-gold:#e48600;
-  --canvas:#7a8aba; --canvas-soft:#9fbee7; --lavender:#acace7; --periwinkle:#8ba1d4;
-  --chrome-indigo:#3d4f97; --muted-indigo:#60619c; --platinum:#dedede;
-  --surface:#fff; --carbon:#21242e; --ink:#21242e; --ink-soft:#3d4f97; --on-primary:#fff;
-  --systems-teal:#206479; --games-red:#a7282b;
+  --primary:#e60012; --signal:#f68d1f; --amber:#fbd000; --nav-gold:#e48600;
+  --canvas:#2e8fdd; --canvas-soft:#cdeafc; --lavender:#8fd5f5; --periwinkle:#4da3ec;
+  --chrome-indigo:#1e3a5f; --muted-indigo:#3b6ea8; --platinum:#e9f4fc;
+  --surface:#fff; --carbon:#1d3349; --ink:#21242e; --ink-soft:#1f5d99; --on-primary:#fff;
+  --systems-teal:#1d9e74; --games-red:#a7282b;
+  --grass:#46a93c; --grass-dark:#2e7a26;
+  --sky-top:#8ed8f8; --sky-deep:#3f9ee8;
   --display:'Archivo Black', Arial Black, Arial, sans-serif;
   --pixel:'Press Start 2P', monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{
   font-family:Arial, Helvetica, sans-serif; font-size:13px; color:var(--ink);
-  background:var(--canvas); min-height:100vh; line-height:1.4;
+  background:linear-gradient(180deg, var(--sky-top) 0%, var(--sky-deep) 100%) fixed;
+  min-height:100vh; line-height:1.4;
 }
 
 @keyframes wiggle{
@@ -105,8 +108,8 @@ h2::after{
   transition:all .08s; box-shadow:inset 0 2px 0 rgba(255,255,255,.35), inset 0 -3px 0 rgba(0,0,0,.2), 0 2px 3px rgba(0,0,0,.25);
 }
 .btn:active{ transform:translateY(2px); box-shadow:inset 0 1px 0 rgba(255,255,255,.25) }
-.btn-purple{background:var(--signal);color:#fff}
-.btn-green{background:var(--signal);color:#fff}
+.btn-purple{background:var(--grass);color:#fff}
+.btn-green{background:var(--grass);color:#fff}
 .btn-red{background:var(--primary);color:#fff}
 .btn-red:hover{animation:wiggle .35s}
 .btn-blue{background:var(--carbon);color:var(--canvas-soft)}
@@ -135,7 +138,7 @@ h2::after{
   box-shadow:inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 0 rgba(0,0,0,.08);
 }
 .discount-panel h3{
-  background:var(--canvas); color:var(--ink); font-size:11px; padding:8px 12px;
+  background:var(--canvas); color:#fff; font-size:11px; padding:8px 12px;
   text-transform:uppercase; letter-spacing:1px; font-weight:700; margin-bottom:10px;
 }
 .discount-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px;padding:0 12px}
@@ -164,7 +167,7 @@ th{
   text-transform:uppercase;letter-spacing:.5px;
 }
 td{padding:8px 7px;border-bottom:1px solid var(--platinum);vertical-align:middle;font-size:13px}
-tr:nth-child(even) td{background:#f2f2f6}
+tr:nth-child(even) td{background:#f0f7fd}
 tr:hover td{background:var(--canvas-soft)}
 tr.row-selected td{background:var(--lavender);box-shadow:inset 4px 0 0 var(--signal)}
 tr.out-of-stock td{opacity:.4}
@@ -305,17 +308,22 @@ input[type="checkbox"]{width:20px;height:20px;cursor:pointer;accent-color:var(--
   .discount-row{flex-direction:column;align-items:stretch}
   .discount-row label{white-space:normal}
   .disc-input,.rule-select{width:100%}
+
+  /* ── collapsible product cards: collapsed = checkbox + name + price ── */
+  tr:not(.row-selected){display:flex;align-items:center;gap:2px;padding:8px 10px;cursor:pointer}
+  tr:not(.row-selected) td{border-bottom:none;padding:2px 4px}
+  tr:not(.row-selected) td::before{content:none}
+  tr:not(.row-selected) td:nth-child(3),
+  tr:not(.row-selected) td:nth-child(5),
+  tr:not(.row-selected) td:nth-child(6),
+  tr:not(.row-selected) td:nth-child(7){display:none}
+  tr:not(.row-selected) td:nth-child(2){flex:1;justify-content:flex-start;text-align:left}
+  tr:not(.row-selected) td:nth-child(4){font-weight:900;white-space:nowrap}
 }
 
 /* ════════════════════════════════════════════
    👾 8-BIT MODE — pixel sprites + chunky stepped corners
    ════════════════════════════════════════════ */
-
-/* checkerboard pixel-floor texture */
-body{
-  background-image:repeating-conic-gradient(rgba(255,255,255,.05) 0% 25%, transparent 0% 50%);
-  background-size:16px 16px;
-}
 
 /* keep real content above the roaming sprites */
 .tab-bar,.main{position:relative;z-index:1}
@@ -390,21 +398,34 @@ body{
 
 @media (max-width:600px){
   .sprite,.deco{display:none}
+  .pixel-bg::before{height:90px;opacity:.6}
 }
 
 /* ════════════════════════════════════════════
    🎮 PIXEL PLAYGROUND — ground line, item-box buttons, easter eggs
    ════════════════════════════════════════════ */
 
-/* brick ground line along the bottom of the background */
+/* pixel city skyline behind the grass — League of Defense tribute */
+.pixel-bg::before{
+  content:"";
+  position:absolute;left:0;right:0;bottom:14px;height:170px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 24' shape-rendering='crispEdges'%3E%3Cg fill='%23ddeffc'%3E%3Crect x='0' y='10' width='6' height='14'/%3E%3Crect x='7' y='6' width='8' height='18'/%3E%3Crect x='16' y='12' width='6' height='12'/%3E%3Crect x='23' y='3' width='7' height='21'/%3E%3Crect x='31' y='14' width='8' height='10'/%3E%3Crect x='40' y='8' width='7' height='16'/%3E%3C/g%3E%3Cg fill='%23b2d6ef'%3E%3Crect x='1' y='12' width='1' height='1'/%3E%3Crect x='3' y='12' width='1' height='1'/%3E%3Crect x='1' y='15' width='1' height='1'/%3E%3Crect x='3' y='15' width='1' height='1'/%3E%3Crect x='8' y='8' width='1' height='1'/%3E%3Crect x='10' y='8' width='1' height='1'/%3E%3Crect x='12' y='8' width='1' height='1'/%3E%3Crect x='8' y='11' width='1' height='1'/%3E%3Crect x='12' y='11' width='1' height='1'/%3E%3Crect x='9' y='14' width='4' height='6'/%3E%3Crect x='17' y='14' width='1' height='1'/%3E%3Crect x='19' y='14' width='1' height='1'/%3E%3Crect x='17' y='17' width='1' height='1'/%3E%3Crect x='19' y='17' width='1' height='1'/%3E%3Crect x='24' y='5' width='1' height='1'/%3E%3Crect x='26' y='5' width='1' height='1'/%3E%3Crect x='28' y='5' width='1' height='1'/%3E%3Crect x='24' y='8' width='1' height='1'/%3E%3Crect x='28' y='8' width='1' height='1'/%3E%3Crect x='24' y='11' width='1' height='1'/%3E%3Crect x='26' y='11' width='1' height='1'/%3E%3Crect x='28' y='11' width='1' height='1'/%3E%3Crect x='32' y='16' width='1' height='1'/%3E%3Crect x='34' y='16' width='1' height='1'/%3E%3Crect x='36' y='16' width='1' height='1'/%3E%3Crect x='41' y='10' width='1' height='1'/%3E%3Crect x='43' y='10' width='1' height='1'/%3E%3Crect x='45' y='10' width='1' height='1'/%3E%3Crect x='41' y='13' width='1' height='1'/%3E%3Crect x='45' y='13' width='1' height='1'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat:repeat-x;
+  background-position:bottom left;
+  background-size:auto 100%;
+  image-rendering:pixelated;
+  opacity:.85;
+}
+
+/* grass ground line along the bottom of the background */
 .pixel-bg::after{
   content:"";
   position:absolute;left:0;right:0;bottom:0;height:14px;
-  background-color:#5b3a29;
+  background-color:var(--grass);
   background-image:
-    repeating-linear-gradient(90deg, rgba(0,0,0,.25) 0 2px, transparent 2px 16px),
-    repeating-linear-gradient(0deg, rgba(255,255,255,.08) 0 2px, transparent 2px 14px);
-  box-shadow:0 -2px 0 0 #3c2418;
+    repeating-linear-gradient(90deg, rgba(255,255,255,.16) 0 4px, transparent 4px 12px),
+    linear-gradient(180deg, #6fce5c 0 3px, transparent 3px);
+  box-shadow:0 -2px 0 0 var(--grass-dark);
   image-rendering:pixelated;
 }
 .sprite{bottom:14px;top:auto !important}
@@ -469,10 +490,10 @@ body{
   background-repeat:no-repeat;background-size:contain;
 }
 .deco-cloud{
-  top:8%;width:64px;height:32px;opacity:.55;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 8' shape-rendering='crispEdges'%3E%3Cg fill='%23f5f7fb'%3E%3Crect x='4' y='0' width='4' height='2'/%3E%3Crect x='9' y='0' width='4' height='2'/%3E%3Crect x='2' y='2' width='12' height='2'/%3E%3Crect x='0' y='4' width='16' height='2'/%3E%3Crect x='2' y='6' width='12' height='1'/%3E%3C/g%3E%3C/svg%3E");
+  top:8%;width:112px;height:56px;opacity:.95;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 8' shape-rendering='crispEdges'%3E%3Cg fill='%23ffffff'%3E%3Crect x='4' y='0' width='4' height='2'/%3E%3Crect x='9' y='1' width='4' height='1'/%3E%3Crect x='2' y='2' width='12' height='2'/%3E%3Crect x='0' y='4' width='16' height='2'/%3E%3C/g%3E%3Cg fill='%23c8ecd4'%3E%3Crect x='1' y='6' width='14' height='1'/%3E%3Crect x='3' y='5' width='4' height='1'/%3E%3Crect x='10' y='5' width='3' height='1'/%3E%3C/g%3E%3C/svg%3E");
 }
-.deco-cloud2{top:22%;width:48px;height:24px;opacity:.4}
+.deco-cloud2{top:22%;width:72px;height:36px;opacity:.75}
 .deco-bush{
   bottom:14px;width:48px;height:24px;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 8' shape-rendering='crispEdges'%3E%3Cg fill='%2346a93c'%3E%3Crect x='0' y='4' width='16' height='4'/%3E%3Crect x='2' y='2' width='4' height='2'/%3E%3Crect x='6' y='0' width='4' height='4'/%3E%3Crect x='10' y='2' width='4' height='2'/%3E%3C/g%3E%3Cg fill='%232e7a26'%3E%3Crect x='0' y='6' width='16' height='2'/%3E%3C/g%3E%3C/svg%3E");

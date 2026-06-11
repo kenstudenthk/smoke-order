@@ -190,7 +190,7 @@ function render(){
       ? parseInt(tab.discount.aY)||0 : 0;
     const effectivePrice = Math.max(0,(p.price||0)-unitDisc);
     const sub = p.checked && !p.oos ? p.qty*effectivePrice : 0;
-    return `<tr class="${p.checked&&!p.oos?'row-selected':''} ${p.oos?'out-of-stock':''}">
+    return `<tr class="${p.checked&&!p.oos?'row-selected':''} ${p.oos?'out-of-stock':''}" onclick="rowTap(${p.i},event)">
       <td data-label=""><input type="checkbox" ${p.checked?'checked':''} ${p.oos?'disabled':''} onchange="toggle(${p.i},this.checked)"></td>
       <td data-label="Product">${p.flag} ${p.name} ${p.oos?'<span class="oos-badge">無貨</span>':''}</td>
       <td data-label="Cat"><span class="cat-badge cat-${p.cat}">${p.cat}</span></td>
@@ -205,7 +205,7 @@ function render(){
           <button class="qty-btn" onclick="changeQty(${p.i},1)" ${p.oos?'disabled':''}>+</button>
         </div>
       </td>
-      <td data-label="Subtotal" style="color:#a78bfa;font-weight:600">${p.checked&&!p.oos?'$'+sub:'—'}</td>
+      <td data-label="Subtotal" style="color:var(--ink-soft);font-weight:600">${p.checked&&!p.oos?'$'+sub:'—'}</td>
       <td data-label="Actions">
         <button class="btn btn-amber btn-sm" onclick="openEditPrice(${p.i})" style="margin-bottom:3px">✏️</button>
         <button class="btn ${p.oos?'btn-green':'btn-red'} btn-sm" onclick="toggleOos(${p.i})">${p.oos?'✅ 有貨':'🚫 無貨'}</button>
@@ -244,6 +244,14 @@ function updateSummary(){
 
 // ── ACTIONS ──
 function toggle(i,v){ curTab().items[i].checked=v; save(); render(); }
+// mobile collapsed card: tap anywhere on the card to select & expand
+function rowTap(i,e){
+  if(!window.matchMedia("(max-width:600px)").matches) return;
+  if(e.target.closest("input,button,select")) return;
+  const it = curTab().items[i];
+  if(it.oos || it.checked) return;
+  it.checked = true; save(); render();
+}
 function changeQty(i,d){ const t=curTab(); t.items[i].qty=Math.max(1,t.items[i].qty+d); save(); render(); }
 function setQty(i,v){ curTab().items[i].qty=Math.max(1,parseInt(v)||1); save(); render(); }
 function toggleOos(i){ const t=curTab(); t.items[i].oos=!t.items[i].oos; if(t.items[i].oos)t.items[i].checked=false; save(); render(); }
