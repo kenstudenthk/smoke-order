@@ -1,0 +1,11 @@
+# local AI tooling / session files
+.claude/
+.agents/
+.remember/
+skills-lock.json
+
+# wrangler local state
+.wrangler/
+
+# crash dumps
+*.stackdump
