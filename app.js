@@ -17,7 +17,8 @@ function newTab(name="Shop"){
     id: Date.now()+"_"+Math.random().toString(36).slice(2),
     name,
     items: freshItems(),
-    discount:{type:"none", aX:"", aY:"", bX:"", bZ:"", bN:""}
+    discount:{type:"none", aX:"", aY:"", bX:"", bZ:"", bN:""},
+    wa:""
   };
 }
 
@@ -38,6 +39,7 @@ function load(){
           return ex ? {...b, checked:ex.checked, qty:ex.qty, oos:ex.oos, price:ex.price} : {...b, checked:false, qty:1, oos:false};
         });
         if(!t.discount) t.discount={type:"none",aX:"",aY:"",bX:"",bZ:"",bN:""};
+        if(t.wa===undefined) t.wa="";
       });
       activeTabId = d.activeTabId && tabs.find(t=>t.id===d.activeTabId) ? d.activeTabId : tabs[0].id;
       return;
@@ -297,6 +299,7 @@ function openSummary(){
   lines.push(`Total Price: $${finalTotal}`);
 
   document.getElementById("summaryBody").textContent = lines.join("\n");
+  document.getElementById("waNumber").value = tab.wa||"";
   document.getElementById("summaryModal").classList.add("open");
 }
 function copySummary(){
@@ -307,6 +310,18 @@ function copySummary(){
     const btn = document.querySelector("#summaryModal .btn-purple");
     btn.textContent="✅ Copied!"; setTimeout(()=>btn.textContent="📋 Copy",2000);
   });
+}
+function sendWhatsApp(){
+  const tab = curTab();
+  const num = document.getElementById("waNumber").value.replace(/\D/g,"");
+  if(!num){alert("請先輸入 WhatsApp 號碼");return;}
+  tab.wa = num; save();
+  // 8-digit local number → assume Hong Kong, prepend country code
+  const full = num.length===8 ? "852"+num : num;
+  const sel = tab.items.filter(i=>i.checked&&!i.oos);
+  if(!sel.length){alert("No items selected.");return;}
+  const txt = sel.map(i=>`${i.name} -- ${i.qty}條`).join("\n");
+  window.open(`https://wa.me/${full}?text=${encodeURIComponent(txt)}`,"_blank");
 }
 
 // ── COPY FROM TAB MODAL ──

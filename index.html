@@ -100,7 +100,9 @@
   <div class="modal">
     <h3>📋 Order Summary</h3>
     <div class="modal-body" id="summaryBody"></div>
+    <input class="edit-input" type="tel" id="waNumber" placeholder="WhatsApp 號碼 (e.g. 91234567)" style="margin:0 18px;width:auto">
     <div class="modal-footer">
+      <button class="btn btn-green" onclick="sendWhatsApp()">💬 WhatsApp</button>
       <button class="btn btn-purple" onclick="copySummary()">📋 Copy</button>
       <button class="btn btn-red" onclick="closeModal('summaryModal')">Close</button>
     </div>
