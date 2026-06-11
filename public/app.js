@@ -1,4 +1,7 @@
-const CATS = ["All",...new Set(BASE.map(p=>p.cat))];
+// PRODUCTS starts as the bundled BASE fallback; init() swaps in the live
+// list from /api/products (KV) when available.
+let PRODUCTS = BASE;
+let CATS = ["All",...new Set(PRODUCTS.map(p=>p.cat))];
 const LS_KEY = "orderTabs_v3";
 
 // ── STATE ──
@@ -9,7 +12,7 @@ let editingIndex = null;
 let lastTotalQty = 0;
 
 function freshItems(){
-  return BASE.map(p=>({...p, checked:false, qty:1, oos:false}));
+  return PRODUCTS.map(p=>({...p, checked:false, qty:1, oos:false}));
 }
 
 function newTab(name="Shop"){
@@ -34,7 +37,7 @@ function load(){
       // migrate: ensure all items exist
       tabs.forEach(t=>{
         const existing = new Map(t.items.map(i=>[i.name,i]));
-        t.items = BASE.map(b=>{
+        t.items = PRODUCTS.map(b=>{
           const ex = existing.get(b.name);
           return ex ? {...b, checked:ex.checked, qty:ex.qty, oos:ex.oos, price:ex.price} : {...b, checked:false, qty:1, oos:false};
         });
@@ -358,11 +361,24 @@ function closeModal(id){ document.getElementById(id).classList.remove("open"); }
 function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
 
 // ── INIT ──
-load();
-renderTabBar();
-renderCatTabs();
-loadDiscountUI();
-render();
+async function init(){
+  try{
+    const res = await fetch("/api/products", {cache:"no-store"});
+    if(res.ok){
+      const d = await res.json();
+      if(Array.isArray(d.products) && d.products.length){
+        PRODUCTS = d.products;
+        CATS = ["All",...new Set(PRODUCTS.map(p=>p.cat))];
+      }
+    }
+  }catch(e){ /* API 不可用（例如本地直開 file://）→ 用 products.js 內建列表 */ }
+  load();
+  renderTabBar();
+  renderCatTabs();
+  loadDiscountUI();
+  render();
+}
+init();
 
 // close modals on overlay click
 ["summaryModal","editModal","copyModal"].forEach(id=>{

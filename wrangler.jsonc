@@ -1,9 +1,18 @@
 {
   "name": "smoke-order",
+  "main": "worker.js",
   "compatibility_date": "2026-06-10",
+  "compatibility_flags": ["nodejs_compat"],
   "assets": {
-    "directory": "."
+    "directory": "./public",
+    "binding": "ASSETS"
   },
+  "kv_namespaces": [
+    {
+      "binding": "PRODUCTS_KV",
+      "id": "58b04678acd9411984d991144c2c7e40"
+    }
+  ],
   "routes": [
     {
       "pattern": "smoke.kkhome.uk",

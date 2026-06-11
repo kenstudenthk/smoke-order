@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>價單管理</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .adm-wrap{max-width:680px;margin:0 auto;padding:16px;position:relative;z-index:2}
+  .adm-card{background:rgba(255,255,255,.95);border:3px solid #1a1a2e;border-radius:8px;padding:16px;margin-bottom:16px;box-shadow:4px 4px 0 rgba(0,0,0,.25)}
+  .adm-card h2{margin:0 0 12px;font-size:16px}
+  .adm-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+  .adm-input{flex:1;min-width:120px;padding:10px;border:2px solid #1a1a2e;border-radius:4px;font-size:16px}
+  .adm-btn{padding:12px 18px;border:3px solid #1a1a2e;border-radius:6px;background:#ffd23f;font-weight:700;font-size:15px;cursor:pointer;box-shadow:3px 3px 0 rgba(0,0,0,.3)}
+  .adm-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(0,0,0,.3)}
+  .adm-btn:disabled{opacity:.5;cursor:not-allowed}
+  .adm-btn-green{background:#6ee76e}
+  .adm-status{padding:10px;border-radius:6px;margin:10px 0;font-size:14px;display:none}
+  .adm-status.show{display:block}
+  .adm-status.err{background:#ffd9d9;border:2px solid #c0392b;color:#7a1f15}
+  .adm-status.ok{background:#dcffdc;border:2px solid #1e8a3c;color:#14532d}
+  .adm-status.busy{background:#fff6d6;border:2px solid #b8860b;color:#6b4e00}
+  .adm-sec{margin-top:14px}
+  .adm-sec h3{font-size:14px;margin:0 0 8px;padding:6px 10px;border-radius:4px;color:#fff}
+  .adm-sec.add h3{background:#1e8a3c}
+  .adm-sec.chg h3{background:#b8860b}
+  .adm-sec.del h3{background:#c0392b}
+  .adm-item{display:flex;gap:6px;align-items:center;padding:8px 6px;border-bottom:1px dashed #aaa;font-size:14px;flex-wrap:wrap}
+  .adm-item input[type=checkbox]{width:22px;height:22px;flex-shrink:0}
+  .adm-item .nm{flex:1;min-width:160px}
+  .adm-item input.fld{padding:6px;border:2px solid #1a1a2e;border-radius:4px;font-size:14px}
+  .adm-item input.fld-name{flex:1;min-width:160px}
+  .adm-item input.fld-flag{width:52px}
+  .adm-item input.fld-price{width:76px}
+  .adm-item select.fld{padding:6px;border:2px solid #1a1a2e;border-radius:4px;font-size:14px}
+  .adm-old{text-decoration:line-through;color:#888;margin-right:4px}
+  .adm-preview-thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .adm-preview-thumbs img{width:72px;height:72px;object-fit:cover;border:2px solid #1a1a2e;border-radius:4px}
+  .adm-count{font-size:12px;color:#555;margin-top:6px}
+  .adm-back{display:inline-block;margin-bottom:12px;font-size:14px}
+</style>
+</head>
+<body>
+
+<div class="adm-wrap">
+  <a class="adm-back" href="/">← 返回價單</a>
+  <h1 style="font-size:20px;margin:0 0 14px">📷 上傳價單，自動更新產品</h1>
+
+  <div class="adm-card">
+    <h2>1️⃣ 管理密碼</h2>
+    <div class="adm-row">
+      <input class="adm-input" type="password" id="pw" placeholder="輸入管理密碼" autocomplete="current-password">
+    </div>
+  </div>
+
+  <div class="adm-card">
+    <h2>2️⃣ 上傳價單（相片可以多張，PDF 限一份）</h2>
+    <div class="adm-row">
+      <input class="adm-input" type="file" id="files" accept="image/*,.pdf" multiple>
+    </div>
+    <div class="adm-preview-thumbs" id="thumbs"></div>
+    <div class="adm-row" style="margin-top:12px">
+      <button class="adm-btn" id="parseBtn" onclick="doParse()">🤖 AI 解析價單</button>
+    </div>
+  </div>
+
+  <div class="adm-status" id="status"></div>
+
+  <div class="adm-card" id="diffCard" style="display:none">
+    <h2>3️⃣ 確認變動</h2>
+    <div class="adm-count" id="parseCount"></div>
+    <div id="diffBody"></div>
+    <div class="adm-row" style="margin-top:14px">
+      <button class="adm-btn adm-btn-green" id="confirmBtn" onclick="doConfirm()">✅ 確認更新價單</button>
+    </div>
+  </div>
+</div>
+
+<script src="products.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
